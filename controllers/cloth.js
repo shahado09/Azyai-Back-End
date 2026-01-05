@@ -81,6 +81,22 @@ router.post('/', verifyToken, multiUpload,async(req,res)=>{
 
 })
 
+router.get('/:id',async (req,res)=>{
+
+  
+  const foundCloth =await Cloth.findById(req.params.id)
+  
+  const currentUser = req.session.user;
+  const isSignedIn = !!currentUser; 
+
+  const isAdmin = isSignedIn && currentUser.role === "admin";
+
+  const isOwner = isSignedIn && currentUser.role === "vendor" && foundCloth.userId.equals(req.session.user._id);
+
+  res.render('cloth/show.ejs',{foundCloth,isOwner,isAdmin})
+})
+
+
 
 // update
 router.put('/:id',verifyToken,multiUpload, async (req,res)=>{
