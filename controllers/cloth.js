@@ -80,3 +80,65 @@ router.post('/', verifyToken, multiUpload,async(req,res)=>{
       }
 
 })
+
+
+// update
+router.put('/:id',verifyToken,multiUpload, async (req,res)=>{
+  
+  try{
+    const currentUser = req.user;
+    const foundCloth = await Cloth.findById(req.params.id);
+    if (!foundCloth)
+      {return res.status(404).json({ error: 'Cloth not found' });} 
+
+    if (!foundCloth.userId.equals(currentUser._id)) {
+      return res.status(403).json({ error: 'Not allowed' });
+    }
+    if (req.body.isAvailable){req.body.isAvailable=true}
+    else{ req.body.isAvailable=false}
+    const updateData = {
+        name: req.body.name,
+        description: req.body.description,
+        sizes: req.body.sizes,
+        isAvailable:req.body.isAvailable,
+        price: Number(req.body.price),
+        category: req.body.category || 'other',
+        stockQty: Number(req.body.stockQty) || 0,
+        salePrice: req.body.salePrice ? Number(req.body.salePrice) : null,};
+    if (req.files && req.files["images"] && req.files["images"].length > 0) {
+      updateData.images = req.files["images"].map(file => '/uploads/' + file.filename);}
+
+    const updated = await Cloth.findByIdAndUpdate( req.params.id,updateData,{ new: true });
+    res.status(200).json({ updated });
+    }
+  catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to update cloth' });
+  }
+})
+
+
+router.delete('/:id', verifyToken, async (req, res) => {
+  try {
+    const currentUser = req.user;
+
+    const foundCloth = await Cloth.findById(req.params.id);
+    if (!foundCloth)
+      {return res.status(404).json({ error: 'Cloth not found' });} 
+
+    if (!foundCloth.userId.equals(currentUser._id)) {
+      return res.status(403).json({ error: 'Not allowed' });
+    }
+
+    await Cloth.findByIdAndDelete(req.params.id);
+
+    res.status(200).json({ message: 'Cloth deleted' });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: 'Failed to delete cloth' });
+  }
+});
+
+
+
+module.exports = router;
