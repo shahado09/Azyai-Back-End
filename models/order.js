@@ -1,5 +1,5 @@
 const mongoose = require('mongoose');
-
+const orderItemSchema = require('./orderItem')
 const orderSchema = mongoose.Schema({
   user: {
     type: mongoose.Schema.Types.ObjectId,
