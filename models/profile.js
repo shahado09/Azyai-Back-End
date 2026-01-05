@@ -1,30 +1,17 @@
 const mongoose = require('mongoose')
 
-const profileSchema = new mongoose.Schema({
-  name: {
+
+const profileSchema = new mongoose.Schema({ 
+phone: {
     type: String,
-    required: true
-  },
-  email:{
-    type: String,
-    required: true
-  }
-  age: Number,
-  height: Number,
-  weight: Number,
-  currentJob: {
-    type: String,
-    enum: ['job seeker', 'employed'],
-    default: 'job seeker'
-  },
-  image: {
-    type: String
-  },
-  owner: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'User',
-    required: true
-  }
-})
+    },
+address: { 
+    type: String, 
+    },
+avatar: { 
+filename: String, 
+path: String, 
+}, 
+});
 
 module.exports = mongoose.model('Profile', profileSchema)

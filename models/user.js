@@ -1,25 +1,32 @@
 const mongoose = require('mongoose');
 
 // we need mongoose schema
-const userSchema = mongoose.Schema({
-  name: {
+const userSchema = new mongoose.Schema({
+  username: {
     type: String,
     required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
   },
   email: {
     type: String,
     required: true,
+    unique: true,
+    lowercase: true,
+    trim: true,
   },
   password: {
     type: String,
     required: true,
   },
-  role: { 
+  role: {
     type: String,
-    default: 'customer', 
-  }, 
-  profile: profileSchema,
-});
+    enum: ["customer", "vendor", "admin"],
+    default: "customer",
+  },
+  profile: profileSchema,   
+}, { timestamps: true });   
 
 userSchema.set('toJSON', {
   transform: (document, returnedObject) => {
