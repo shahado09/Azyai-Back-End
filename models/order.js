@@ -9,8 +9,7 @@ const orderSchema = mongoose.Schema({
 
   items: 
     {
-    type: [mongoose.Schema.Types.ObjectId],
-    ref: "Cloth",
+    type: [orderItemSchema],
     required: true
   },
 
@@ -21,6 +20,7 @@ const orderSchema = mongoose.Schema({
 
   status: {
     type: String,
+    enum: ['Pending', 'Paid', 'Shipped', 'Delivered', 'Cancelled'],
     default: "Pending"
   },
 }, {
