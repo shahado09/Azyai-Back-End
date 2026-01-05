@@ -27,8 +27,15 @@ app.use(logger('dev'));
 // Public Routes
 app.use('/auth', authCtrl);
 
+// // Protected Routes
+// app.use(verifyToken);
+
+// Public Routes
+app.use('/auth', authCtrl);
+
 // Protected Routes
-app.use(verifyToken);
+app.use('/profiles', verifyToken, require('./controllers/profile'));
+
 
 app.get('/test', (req, res) => {
   console.log(req.user);
