@@ -16,7 +16,7 @@ router.post('/', async(req,res)=>{
 
 router.get('/', async(req,res)=>{
     try{
-        //req.body.user = req.user
+
         const foundOrders = await Order.find();
         res.status(200).json(foundOrders);
         
@@ -26,9 +26,9 @@ router.get('/', async(req,res)=>{
     }
 })
 
- router.get('/:orderId', async(req,res)=>{
+router.get('/:orderId', async(req,res)=>{
         try{
-            // req.body.user = req.user
+    
             console.log(req.params.orderId)
         const foundOrder = await Order.findById(req.params.orderId);
         if (!foundOrder){
@@ -45,10 +45,9 @@ router.get('/', async(req,res)=>{
         }}
     })
 
- router.delete('/:orderId', async(req,res)=>{
+router.delete('/:orderId', async(req,res)=>{
         try{
-            // req.body.user = req.user
-           // console.log(req.params.orderId)
+ 
         const deleteOrder = await Order.findByIdAndDelete(req.params.orderId);
         if (!deleteOrder){
             res.status(404);
