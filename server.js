@@ -4,6 +4,7 @@ dotenv.config();
 const express = require('express');
 
 const app = express();
+app.set('etag', false);
 const mongoose = require('mongoose');
 const cors = require('cors');
 const logger = require('morgan');
@@ -33,6 +34,7 @@ app.use('/auth', authCtrl);
 
 app.get('/cloth', async (req, res) => {
   try {
+    res.set("Cache-Control", "no-store");
     const allCloth = await Cloth.find().sort({ createdAt: -1 });
     return res.status(200).json({ allCloth });
   } catch (error) {

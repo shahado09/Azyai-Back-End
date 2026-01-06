@@ -9,7 +9,7 @@ const clothSchema = new mongoose.Schema({
           required: true },
           
   name: { type: String, required: true },       
-  sizes: [{ type: String, required: true }],        
+  sizes: [{ type: String, enum: ["XS", "S", "M", "L", "XL", "XXL", "FreeSize"],required: true }],        
   description: { type: String, required: true }, 
   images: [{ type: String, required: true }],                           
   isAvailable: { type: Boolean, default: true },  
