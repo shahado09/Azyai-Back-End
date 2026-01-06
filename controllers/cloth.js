@@ -106,7 +106,7 @@ router.get('/:id', optionalVerifyToken, async (req, res) => {
 
 
 // update
-router.put('/:id',verifyToken,isVendorOrAdmin,ownsClothOrAdmin,multiUpload, async (req,res)=>{
+router.put('/:id',verifyToken,multiUpload, async (req,res)=>{
   
   try{
     const currentUser = req.user;
@@ -140,16 +140,19 @@ router.put('/:id',verifyToken,isVendorOrAdmin,ownsClothOrAdmin,multiUpload, asyn
   }
 })
 
-
-router.delete('/:id',verifyToken, isVendorOrAdmin, ownsClothOrAdmin, async (req, res) => {
+router.delete('/:id', verifyToken, async (req, res) => {
   try {
     const currentUser = req.user;
 
     const foundCloth = await Cloth.findById(req.params.id);
-    if (!foundCloth)
-      {return res.status(404).json({ error: 'Cloth not found' });} 
+    if (!foundCloth) {
+      return res.status(404).json({ error: 'Cloth not found' });
+    }
 
-    if (!foundCloth.userId.equals(currentUser._id)) {
+    const isAdmin = currentUser.role === "admin";
+    const isOwner = foundCloth.userId.equals(currentUser._id);
+
+    if (!isAdmin && !isOwner) {
       return res.status(403).json({ error: 'Not allowed' });
     }
 
