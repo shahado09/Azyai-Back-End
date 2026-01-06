@@ -22,6 +22,11 @@ const multiUpload = upload.fields([
   { name: "images", maxCount: 3}
 ])
 
+// SUK
+function generateSku() {
+  return `AZY-${Date.now().toString(36).toUpperCase()}`; 
+}
+
 
 
 // index
@@ -41,7 +46,7 @@ router.get('/my',verifyToken, isVendorOrAdmin,async(req,res)=>{
 })
 
 // create
-router.post('/', verifyToken,isVendorOrAdmin, multiUpload,async(req,res)=>{
+router.post('/', verifyToken, multiUpload,async(req,res)=>{
 
     try{ 
         const currentUser = req.user;
@@ -55,7 +60,7 @@ router.post('/', verifyToken,isVendorOrAdmin, multiUpload,async(req,res)=>{
             req.body.images.push('/uploads/' + file.filename);
         });
         }
-
+        const sku = generateSku();
         const createdcloth = await Cloth.create({
               userId: currentUser._id,
               name: req.body.name,
@@ -67,6 +72,7 @@ router.post('/', verifyToken,isVendorOrAdmin, multiUpload,async(req,res)=>{
               category: req.body.category || 'other',
               stockQty: Number(req.body.stockQty) || 0,
               salePrice: req.body.salePrice ? Number(req.body.salePrice) : null,
+              sku,
             });
 
        res.status(201).json({ createdcloth });
