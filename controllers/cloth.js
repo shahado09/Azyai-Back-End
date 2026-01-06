@@ -4,6 +4,9 @@ const Cloth =require("../models/cloth")
 const multer = require('multer');
 const path = require('path');
 const verifyToken = require('../middleware/verify-token');
+const optionalVerifyToken = require("../middleware/optional-verify-token");
+const { isVendorOrAdmin, ownsClothOrAdmin } = require("../middleware/access-control");
+
 
 // mutler
 const storage = multer.diskStorage({
@@ -22,20 +25,15 @@ const multiUpload = upload.fields([
 
 
 // index
-router.get('/',verifyToken,async(req,res)=>{
+router.get('/my',verifyToken, isVendorOrAdmin,async(req,res)=>{
 
     try{
 
-      const currentUser = req.user || null;
-      const allCloth= await Cloth.find().sort({createdAt: -1})
-
+      const currentUser = req.user;
       let myCloth=[];
       if(currentUser && (currentUser.role === "vendor" || currentUser.role === "admin"))
         myCloth = await Cloth.find({ userId: currentUser._id }).sort({ createdAt: -1 });
-
-
-      res.status(200).json({ allCloth, myCloth, currentUser });}
-
+      res.status(200).json({ myCloth, currentUser });}
   catch (error) {
       console.log(error);
       res.status(500).json({ error: 'Failed to load clothes' });
@@ -43,7 +41,7 @@ router.get('/',verifyToken,async(req,res)=>{
 })
 
 // create
-router.post('/', verifyToken, multiUpload,async(req,res)=>{
+router.post('/', verifyToken,isVendorOrAdmin, multiUpload,async(req,res)=>{
 
     try{ 
         const currentUser = req.user;
@@ -81,25 +79,28 @@ router.post('/', verifyToken, multiUpload,async(req,res)=>{
 
 })
 
-router.get('/:id',async (req,res)=>{
+// show
+router.get('/:id', optionalVerifyToken, async (req, res) => {
+  try {
+    const foundCloth = await Cloth.findById(req.params.id);
+    if (!foundCloth) return res.status(404).json({ message: "Cloth not found" });
 
-  
-  const foundCloth =await Cloth.findById(req.params.id)
-  
-  const currentUser = req.session.user;
-  const isSignedIn = !!currentUser; 
+    const currentUser = req.user; 
+    const isSignedIn = !!currentUser;
+    const isAdmin = isSignedIn && currentUser.role === "admin";
+    const isOwner =isSignedIn &&currentUser.role === "vendor" &&foundCloth.userId?.toString() === currentUser._id;
 
-  const isAdmin = isSignedIn && currentUser.role === "admin";
-
-  const isOwner = isSignedIn && currentUser.role === "vendor" && foundCloth.userId.equals(req.session.user._id);
-
-  res.render('cloth/show.ejs',{foundCloth,isOwner,isAdmin})
-})
+    return res.status(200).json({ foundCloth, currentUser, isOwner, isAdmin });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Failed to load cloth" });
+  }
+});
 
 
 
 // update
-router.put('/:id',verifyToken,multiUpload, async (req,res)=>{
+router.put('/:id',verifyToken,isVendorOrAdmin,ownsClothOrAdmin,multiUpload, async (req,res)=>{
   
   try{
     const currentUser = req.user;
@@ -134,7 +135,7 @@ router.put('/:id',verifyToken,multiUpload, async (req,res)=>{
 })
 
 
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id',verifyToken, isVendorOrAdmin, ownsClothOrAdmin, async (req, res) => {
   try {
     const currentUser = req.user;
 
