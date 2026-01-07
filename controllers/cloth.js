@@ -114,7 +114,7 @@ router.put('/:id',verifyToken,isVendorOrAdmin,ownsClothOrAdmin, async (req, res)
       updateData.images = Array.isArray(req.body.images) ? req.body.images : [req.body.images]; }
 
     const updated = await Cloth.findByIdAndUpdate(req.params.id, updateData, { new: true });
-    res.status(200).json(updated);
+    res.status(200).json({updated});
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Failed to update cloth' });
