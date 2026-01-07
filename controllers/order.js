@@ -29,9 +29,11 @@ router.get('/',verifyToken, async(req,res)=>{
 
 router.get('/:orderId',verifyToken, async(req,res)=>{
         try{
-    
             console.log(req.params.orderId)
-        const foundOrder = await Order.findById(req.params.orderId);
+            const foundOrder = await Order.findOne({
+                _id: req.params.orderId,
+                user: req.user._id
+            });
         if (!foundOrder){
             res.status(404);
             throw new Error('Order not found!');
@@ -48,8 +50,11 @@ router.get('/:orderId',verifyToken, async(req,res)=>{
 
 router.delete('/:orderId',verifyToken, async(req,res)=>{
         try{
- 
-        const deleteOrder = await Order.findByIdAndDelete(req.params.orderId);
+
+        const deleteOrder = await Order.findOneAndDelete({
+  _id: req.params.orderId,
+  user: req.user._id
+});
         if (!deleteOrder){
             res.status(404);
             throw new Error('Order not found!');
@@ -66,8 +71,15 @@ router.delete('/:orderId',verifyToken, async(req,res)=>{
 
 router.put('/:orderId',verifyToken, async(req,res)=>{
     try{
-        const updatedOrder = await Order.findByIdAndUpdate(req.params.orderId , req.body, {new: true} )
-        if (!updatedOrder){
+        const updatedOrder = await Order.findOneAndUpdate(
+  { 
+    _id: req.params.orderId,
+    user: req.user._id
+  },
+  req.body,
+  { new: true }
+);
+ if (!updatedOrder){
             res.status(404);
             throw new Error('Order not found!');
         }
