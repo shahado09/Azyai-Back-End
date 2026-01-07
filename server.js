@@ -4,7 +4,6 @@ dotenv.config();
 const express = require('express');
 
 const app = express();
-app.set('etag', false);
 const mongoose = require('mongoose');
 const cors = require('cors');
 const logger = require('morgan');
@@ -13,6 +12,7 @@ const logger = require('morgan');
 const Cloth = require("./models/cloth");
 const authCtrl = require('./controllers/auth');
 const clothCtrl = require('./controllers/cloth');
+const orderCtrl = require('./controllers/order')
 
 // Middleware
 const verifyToken = require('./middleware/verify-token');
@@ -46,6 +46,8 @@ app.get('/cloth', async (req, res) => {
 
 // Protected Routes
 app.use('/cloth', clothCtrl);
+app.use(verifyToken);
+app.use('/orders', orderCtrl)
 app.use('/profiles', verifyToken, require('./controllers/profile'));
 
 
