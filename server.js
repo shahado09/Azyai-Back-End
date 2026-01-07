@@ -13,6 +13,9 @@ const Cloth = require("./models/cloth");
 const authCtrl = require('./controllers/auth');
 const clothCtrl = require('./controllers/cloth');
 const orderCtrl = require('./controllers/order')
+const vendorCtrl = require("./controllers/vendor"); 
+const adminCtrl = require("./controllers/admin");  
+
 
 // Middleware
 const verifyToken = require('./middleware/verify-token');
@@ -48,6 +51,8 @@ app.use('/cloth', clothCtrl);
 app.use(verifyToken);
 app.use('/orders', orderCtrl)
 app.use('/profiles', verifyToken, require('./controllers/profile'));
+app.use("/vendor", vendorCtrl);
+app.use("/admin", adminCtrl);
 
 
 app.get('/test', (req, res) => {
