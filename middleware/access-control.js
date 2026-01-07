@@ -22,8 +22,8 @@ async function ownsClothOrAdmin(req, res, next) {
   if (!cloth) return res.status(404).json({ message: "Cloth not found" });
 
   if (req.user.role === "admin") return next();
-  if (req.user.role === "vendor" && cloth.userId?.toString() === req.user._id)
-    return next();
+  if (req.user.role === "vendor" && cloth.userId?.toString() === req.user._id?.toString())
+  return next();
 
   return res.status(403).json({ message: "Not allowed" });
 }
