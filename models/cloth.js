@@ -9,17 +9,15 @@ const clothSchema = new mongoose.Schema({
           required: true },
           
   name: { type: String, required: true },       
-  sizes: [{ type: String, required: true }],        
+  sizes: [{ type: String, enum: ["XS", "S", "M", "L", "XL", "XXL", "FreeSize"],required: true }],        
   description: { type: String, required: true }, 
-  images: [{ type: String, required: true }],                           
+  images: [{ type: String ,required: true }],                           
   isAvailable: { type: Boolean, default: true },  
   price: {type: Number,required: true,},
-
-  category: { type: String, enum: ['abaya', 'jalabiya', 'dress', 'set', 'other'], default: 'other'},
-
-  stockQty: { type: Number, default: 0, min: 0},
-
   salePrice: { type: Number, min: 0, default: null},
+  stockQty: { type: Number, default: 0, min: 0},
+  category: { type: String, enum: ['abaya', 'jalabiya', 'dress', 'set', 'other'], default: 'other'},
+  sku: { type: String, required: true, unique: true, trim: true },
 
 })
 

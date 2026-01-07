@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-// This is the same as isSignedIn
 
 const verifyToken = (req, res, next) => {
   try {
