@@ -15,7 +15,8 @@ const orderItemSchema = mongoose.Schema({
   quantity:{
     type: Number,
     min: 1,
-    required: true
+    required: true,
+    default: 1
   }
 }, {
     timestamps: true
