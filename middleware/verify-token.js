@@ -7,6 +7,7 @@ const verifyToken = (req, res, next) => {
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
     console.log(decoded);
     req.user = decoded.payload;
+    console.log("AUTH USER:", req.user);
     next();
   } catch (err) {
     console.log(err);
@@ -16,3 +17,4 @@ const verifyToken = (req, res, next) => {
 };
 
 module.exports = verifyToken;
+

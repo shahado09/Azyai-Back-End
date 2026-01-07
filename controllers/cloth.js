@@ -15,7 +15,23 @@ function generateSku() {
   return `AZY-${Date.now().toString(36).toUpperCase()}`; 
 }
 
+// show
+router.get('/:id', optionalVerifyToken, async (req, res) => {
+  try {
+    const foundCloth = await Cloth.findById(req.params.id);
+    if (!foundCloth) return res.status(404).json({ message: "Cloth not found" });
 
+    const currentUser = req.user; 
+    const isSignedIn = !!currentUser;
+    const isAdmin = isSignedIn && currentUser.role === "admin";
+    const isOwner =isSignedIn &&currentUser.role === "vendor" &&foundCloth.userId?.toString() === currentUser._id;
+
+    return res.status(200).json({ foundCloth, currentUser, isOwner, isAdmin });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ error: "Failed to load cloth" });
+  }
+});
 
 // index
 router.get('/my',verifyToken, isVendorOrAdmin,async(req,res)=>{
@@ -33,8 +49,9 @@ router.get('/my',verifyToken, isVendorOrAdmin,async(req,res)=>{
     }
 })
 
+
 // create
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', verifyToken, isVendorOrAdmin, async (req, res) => {
   try {
     const currentUser = req.user;
 
@@ -74,35 +91,13 @@ router.post('/', verifyToken, async (req, res) => {
   }
 });
 
-// show
-router.get('/:id', optionalVerifyToken, async (req, res) => {
-  try {
-    const foundCloth = await Cloth.findById(req.params.id);
-    if (!foundCloth) return res.status(404).json({ message: "Cloth not found" });
-
-    const currentUser = req.user; 
-    const isSignedIn = !!currentUser;
-    const isAdmin = isSignedIn && currentUser.role === "admin";
-    const isOwner =isSignedIn &&currentUser.role === "vendor" &&foundCloth.userId?.toString() === currentUser._id;
-
-    return res.status(200).json({ foundCloth, currentUser, isOwner, isAdmin });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({ error: "Failed to load cloth" });
-  }
-});
-
 
 
 // update
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id',verifyToken,isVendorOrAdmin,ownsClothOrAdmin, async (req, res) => {
   try {
-    const currentUser = req.user;
     const foundCloth = await Cloth.findById(req.params.id);
-
     if (!foundCloth) return res.status(404).json({ error: 'Cloth not found' });
-    if (!foundCloth.userId.equals(currentUser._id))
-      return res.status(403).json({ error: 'Not allowed' });
 
     const updateData = {
       name: req.body.name,
@@ -118,20 +113,15 @@ router.put('/:id', verifyToken, async (req, res) => {
     if (req.body.images) {
       updateData.images = Array.isArray(req.body.images) ? req.body.images : [req.body.images]; }
 
-    const updated = await Cloth.findByIdAndUpdate(
-      req.params.id,
-      updateData,
-      { new: true }
-    );
-
-    res.status(200).json({ updated });
+    const updated = await Cloth.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    res.status(200).json(updated);
   } catch (error) {
     console.log(error);
     res.status(500).json({ error: 'Failed to update cloth' });
   }
 });
 
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', verifyToken,isVendorOrAdmin,ownsClothOrAdmin, async (req, res) => {
   try {
     const currentUser = req.user;
 
