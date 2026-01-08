@@ -5,7 +5,6 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-
 router.post('/sign-up', async (req, res) => {
   try {
     const { username, password } = req.body;
@@ -30,7 +29,7 @@ router.post('/sign-up', async (req, res) => {
 
     const token = jwt.sign({ payload }, process.env.JWT_SECRET);
 
-    res.status(201).json({ token });
+    res.status(201).json({ token, user });
   } catch (error) {
     console.log(error);
   }
@@ -64,7 +63,7 @@ router.post('/sign-in', async (req, res) => {
 
     const token = jwt.sign({ payload }, process.env.JWT_SECRET);
 
-    res.status(200).json({ token });
+    res.status(200).json({ token, user: userInDatabase });
   } catch (err) {
     console.log(err);
 
