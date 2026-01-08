@@ -2,80 +2,71 @@ const express = require('express');
 const router = express.Router();
 const Profile = require('../models/profile');
 const User = require('../models/user');
-const verifyToken = require('../middleware/verify-token');
 
-// CREATE Profile ================================================================
-router.post('/', verifyToken, async (req, res) => {
+// Route to create a new profile
+router.post('/', async (req, res) => {
   try {
-    const profileData = { ...req.body, owner: req.user._id }; 
-    const profile = await Profile.create(profileData);
+    const exists = await Profile.findOne({ user: req.user._id });
+    if (exists) return res.status(400).json({ message: 'Profile exists' });
+
+    const profile = await Profile.create({ ...req.body, user: req.user._id });
+    await User.findByIdAndUpdate(req.user._id, { profile: profile._id });
+
     res.status(201).json(profile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error creating profile' });
+    res.status(500).json({ message: 'Create failed' });
   }
 });
 
-// SHOW Profile by ID ============================================================
-router.get('/:id', verifyToken, async (req, res) => {
+// Route to get a profile by ID
+router.get('/:id', async (req, res) => {
   try {
-    const profile = await Profile.findById(req.params.id).populate('owner');
-    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+    const profile = await Profile.findById(req.params.id);
+    if (!profile) return res.status(404).json({ message: 'Not found' });
     res.json(profile);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching profile' });
+    res.status(500).json({ message: 'Fetch failed' });
   }
 });
 
-// EDIT Profile (Form Data) ======================================================
-router.get('/:id/edit', verifyToken, async (req, res) => {
+// Route to update an existing profile by ID
+router.put('/:id', async (req, res) => {
   try {
     const profile = await Profile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: 'Profile not found' });
+    if (!profile) return res.status(404).json({ message: 'Not found' });
 
-    if (profile.owner.toString() !== req.user._id) {
-      return res.status(403).json({ message: 'Not authorized to edit this profile' });
+    // console.log("req.user:", req.user);
+    // console.log("profile.user:", profile.user);
+    // console.log("profile.userId:", profile.userId);
+    // console.log("req.body:", req.body);
+
+    // ✅ Check if user is authorized (accepts both user and userId for old data)
+    if (
+      profile.user?.toString() !== req.user._id.toString() &&
+      profile.userId?.toString() !== req.user._id.toString()
+    ) {
+      return res.status(403).json({ message: 'Unauthorized' });
     }
 
-    res.json(profile);
+    const updated = await Profile.findByIdAndUpdate(req.params.id, req.body, { new: true });
+    res.json(updated);
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error fetching profile for edit' });
+    res.status(500).json({ message: 'Update failed' });
   }
 });
 
-// UPDATE Profile ================================================================
-router.put('/:id', verifyToken, async (req, res) => {
+// Route to delete a profile by ID
+router.delete('/:id', async (req, res) => {
   try {
-    const profile = await Profile.findById(req.params.id);
-    if (!profile) return res.status(404).json({ message: 'Profile not found' });
-
-    if (profile.owner.toString() !== req.user._id) {
-      return res.status(403).json({ message: 'Not authorized to update this profile' });
-    }
-
-    const updatedProfile = await Profile.findByIdAndUpdate(
-      req.params.id,
-      req.body,
-      { new: true }
-    );
-    res.json(updatedProfile);
+    await Profile.findByIdAndDelete(req.params.id);
+    await User.findByIdAndUpdate(req.user._id, { profile: null });
+    res.json({ message: 'Deleted' });
   } catch (err) {
     console.error(err);
-    res.status(500).json({ message: 'Error updating profile' });
-  }
-});
-
-// DELETE Account (User + Profile) ================================================
-router.delete('/account', verifyToken, async (req, res) => {
-  try {
-    await Profile.findOneAndDelete({ owner: req.user._id });
-    await User.findByIdAndDelete(req.user._id);
-    res.status(200).json({ message: 'Account and profile deleted successfully' });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ message: 'Error deleting account' });
+    res.status(500).json({ message: 'Delete failed' });
   }
 });
 
