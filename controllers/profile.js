@@ -2,10 +2,9 @@ const express = require('express');
 const router = express.Router();
 const Profile = require('../models/profile');
 const User = require('../models/user');
-const verifyToken = require('../middleware/verify-token');
 
 // Route to create a new profile
-router.post('/', verifyToken, async (req, res) => {
+router.post('/', async (req, res) => {
   try {
     const exists = await Profile.findOne({ user: req.user._id });
     if (exists) return res.status(400).json({ message: 'Profile exists' });
@@ -21,7 +20,7 @@ router.post('/', verifyToken, async (req, res) => {
 });
 
 // Route to get a profile by ID
-router.get('/:id', verifyToken, async (req, res) => {
+router.get('/:id', async (req, res) => {
   try {
     const profile = await Profile.findById(req.params.id);
     if (!profile) return res.status(404).json({ message: 'Not found' });
@@ -33,15 +32,15 @@ router.get('/:id', verifyToken, async (req, res) => {
 });
 
 // Route to update an existing profile by ID
-router.put('/:id', verifyToken, async (req, res) => {
+router.put('/:id', async (req, res) => {
   try {
     const profile = await Profile.findById(req.params.id);
     if (!profile) return res.status(404).json({ message: 'Not found' });
 
-    console.log("req.user:", req.user);
-    console.log("profile.user:", profile.user);
-    console.log("profile.userId:", profile.userId);
-    console.log("req.body:", req.body);
+    // console.log("req.user:", req.user);
+    // console.log("profile.user:", profile.user);
+    // console.log("profile.userId:", profile.userId);
+    // console.log("req.body:", req.body);
 
     // ✅ Check if user is authorized (accepts both user and userId for old data)
     if (
@@ -60,7 +59,7 @@ router.put('/:id', verifyToken, async (req, res) => {
 });
 
 // Route to delete a profile by ID
-router.delete('/:id', verifyToken, async (req, res) => {
+router.delete('/:id', async (req, res) => {
   try {
     await Profile.findByIdAndDelete(req.params.id);
     await User.findByIdAndUpdate(req.user._id, { profile: null });

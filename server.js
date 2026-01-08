@@ -53,7 +53,7 @@ app.get('/cloth', async (req, res) => {
 app.use(verifyToken);
 app.use('/cloth', clothCtrl);
 app.use('/orders', orderCtrl);
-app.use('/profiles', verifyToken, require('./controllers/profile'));
+app.use('/profiles', profileCtrl);
 app.use("/vendor", vendorCtrl);
 app.use("/admin", adminCtrl);
 

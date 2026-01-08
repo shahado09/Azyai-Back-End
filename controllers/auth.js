@@ -27,7 +27,7 @@ router.post('/sign-up', async (req, res) => {
       role: user.role, 
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({payload}, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.status(201).json({ token, user: payload });
   } catch (error) {
@@ -60,7 +60,7 @@ router.post('/sign-in', async (req, res) => {
       role: userInDatabase.role,
     };
 
-    const token = jwt.sign(payload, process.env.JWT_SECRET, { expiresIn: '7d' });
+    const token = jwt.sign({payload}, process.env.JWT_SECRET, { expiresIn: '7d' });
 
     res.status(200).json({ token, user: payload });
   } catch (error) {
