@@ -7,7 +7,7 @@ const verifyToken = require('../middleware/verify-token');
 // CREATE Profile ================================================================
 router.post('/', verifyToken, async (req, res) => {
   try {
-    const profileData = { ...req.body, owner: req.user._id }; // تأكدي أن الـ middleware يحط _id
+    const profileData = { ...req.body, owner: req.user._id }; 
     const profile = await Profile.create(profileData);
     res.status(201).json(profile);
   } catch (err) {
