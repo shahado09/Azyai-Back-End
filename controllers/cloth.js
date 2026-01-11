@@ -15,6 +15,22 @@ function generateSku() {
   return `AZY-${Date.now().toString(36).toUpperCase()}`; 
 }
 
+// index
+router.get('/my',verifyToken, isVendorOrAdmin,async(req,res)=>{
+
+    try{
+
+      const currentUser = req.user;
+      let myCloth=[];
+      if(currentUser && (currentUser.role === "vendor" || currentUser.role === "admin"))
+        myCloth = await Cloth.find({ userId: currentUser._id }).sort({ createdAt: -1 });
+      res.status(200).json({ myCloth, currentUser });}
+  catch (error) {
+      console.log(error);
+      res.status(500).json({ error: 'Failed to load clothes' });
+    }
+})
+
 // show
 router.get('/:id', optionalVerifyToken, async (req, res) => {
   try {
@@ -33,21 +49,7 @@ router.get('/:id', optionalVerifyToken, async (req, res) => {
   }
 });
 
-// index
-router.get('/my',verifyToken, isVendorOrAdmin,async(req,res)=>{
 
-    try{
-
-      const currentUser = req.user;
-      let myCloth=[];
-      if(currentUser && (currentUser.role === "vendor" || currentUser.role === "admin"))
-        myCloth = await Cloth.find({ userId: currentUser._id }).sort({ createdAt: -1 });
-      res.status(200).json({ myCloth, currentUser });}
-  catch (error) {
-      console.log(error);
-      res.status(500).json({ error: 'Failed to load clothes' });
-    }
-})
 
 
 // create

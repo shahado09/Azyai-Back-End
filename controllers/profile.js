@@ -36,13 +36,6 @@ router.put('/:id', async (req, res) => {
   try {
     const profile = await Profile.findById(req.params.id);
     if (!profile) return res.status(404).json({ message: 'Not found' });
-
-    // console.log("req.user:", req.user);
-    // console.log("profile.user:", profile.user);
-    // console.log("profile.userId:", profile.userId);
-    // console.log("req.body:", req.body);
-
-    // ✅ Check if user is authorized (accepts both user and userId for old data)
     if (
       profile.user?.toString() !== req.user._id.toString() &&
       profile.userId?.toString() !== req.user._id.toString()
